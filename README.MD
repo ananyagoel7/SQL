@@ -1,8 +1,12 @@
-# 💊 FDA Drug Approval Analysis | SQL & Power BI
+# 🗄️ SQL Data Analysis Projects
 
 ## 📌 Project Overview
 
-This project analyzes the **FDA Drug Approval dataset** using advanced SQL queries and Power BI visualizations to uncover approval trends, market segmentation, product insights, and therapeutic class patterns across multiple decades of drug approval data.
+This repository showcases **SQL-based Data Analysis Projects** 
+using advanced SQL queries including JOINs, aggregations, 
+subqueries, window functions, and date functions — analyzing 
+FDA Drug Approval data and Pizza Sales data to uncover 
+meaningful business insights.
 
 ---
 
@@ -15,6 +19,7 @@ This project analyzes the **FDA Drug Approval dataset** using advanced SQL queri
 - 📫 Reach me at: **ananyagoel.brac@gmail.com**
 - 🔗 LinkedIn: [linkedin.com/in/ananya-goel05](https://linkedin.com/in/ananya-goel05)
 - 📊 Power BI Projects: [github.com/ananyagoel7/Power-Bi](https://github.com/ananyagoel7/Power-Bi)
+- 📊 Excel Projects: [github.com/ananyagoel7/Excel](https://github.com/ananyagoel7/Excel)
 
 ---
 
@@ -22,15 +27,215 @@ This project analyzes the **FDA Drug Approval dataset** using advanced SQL queri
 
 | Tool | Purpose |
 |---|---|
-| **SQL** | Data extraction, joins, aggregations, subqueries |
-| **Power BI** | Dashboard design and visualization |
-| **DAX** | Custom measures and calculations |
-| **Power Query** | Data transformation and cleaning |
+| **MySQL** | Query writing and execution |
+| **Power BI** | Dashboard visualization on top of SQL data |
 | **Excel** | Data validation and exploration |
+| **DAX** | Custom measures for Power BI reports |
 
 ---
 
-## 📂 Dataset Tables Used
+## 📁 Projects
+
+---
+
+## 🍕 Project 1 — Pizza Sales Analysis
+
+### Overview
+A comprehensive SQL analysis of pizza sales data uncovering 
+revenue trends, order patterns, category performance, size 
+preferences, and best/worst performing pizzas — helping 
+restaurant businesses make data-driven menu and marketing decisions.
+
+---
+
+### 📊 Key KPIs Tracked
+
+| Metric | SQL Query Used |
+|---|---|
+| **Total Revenue** | SUM(total_price) |
+| **Average Order Value** | SUM(total_price) / COUNT(DISTINCT order_id) |
+| **Total Pizzas Sold** | SUM(quantity) |
+| **Total Orders** | COUNT(DISTINCT order_id) |
+| **Average Pizzas Per Order** | SUM(quantity) / COUNT(DISTINCT order_id) |
+
+---
+
+### 📊 Analysis Performed
+
+#### ✅ Query 1 — Core KPIs
+```sql
+-- Total Revenue
+SELECT SUM(total_price) AS total_revenue 
+FROM pizza_sales;
+
+-- Average Order Value
+SELECT SUM(total_price) / COUNT(DISTINCT order_id) 
+AS avg_order_value FROM pizza_sales;
+
+-- Total Pizzas Sold
+SELECT SUM(quantity) AS total_pizzas_sold 
+FROM pizza_sales;
+
+-- Total Orders
+SELECT COUNT(DISTINCT order_id) AS total_orders 
+FROM pizza_sales;
+
+-- Average Pizzas Per Order
+SELECT CAST(SUM(quantity) AS DECIMAL(10,2)) / 
+CAST(COUNT(DISTINCT order_id) AS DECIMAL(10,2)) 
+AS avg_pizzas_per_order FROM pizza_sales;
+```
+**Insight:** Establishes baseline business performance metrics for the pizza restaurant.
+
+---
+
+#### ✅ Query 2 — Daily Trend For Total Orders
+```sql
+SELECT DAYNAME(STR_TO_DATE(order_date, '%Y-%m-%d')) 
+AS order_day,
+COUNT(DISTINCT order_id) AS total_orders 
+FROM pizza_sales 
+GROUP BY order_day;
+```
+**Insight:** Identifies which days of the week drive the most orders — helps with staffing and inventory planning.
+
+---
+
+#### ✅ Query 3 — Monthly Trends For Total Orders
+```sql
+SELECT MONTHNAME(STR_TO_DATE(order_date, '%Y-%m-%d')) 
+AS month_name,
+COUNT(DISTINCT order_id) AS total_orders 
+FROM pizza_sales 
+GROUP BY month_name 
+ORDER BY total_orders DESC;
+```
+**Insight:** Reveals peak and slow months — helps with seasonal promotions and planning.
+
+---
+
+#### ✅ Query 4 — Percentage of Sales by Pizza Category
+```sql
+-- Overall Category Sales %
+SELECT pizza_category, 
+SUM(total_price) * 100 / (SELECT SUM(total_price) 
+FROM pizza_sales) AS pct 
+FROM pizza_sales 
+GROUP BY pizza_category;
+
+-- January Category Sales %
+SELECT pizza_category, 
+SUM(total_price) * 100 / (SELECT SUM(total_price) 
+FROM pizza_sales WHERE MONTH(order_date) = 1) AS pct 
+FROM pizza_sales 
+WHERE MONTH(order_date) = 1 
+GROUP BY pizza_category;
+```
+**Insight:** Shows which pizza categories — Classic, Supreme, Veggie, Chicken — contribute most to revenue.
+
+---
+
+#### ✅ Query 5 — Percentage of Sales by Pizza Size
+```sql
+SELECT pizza_size, 
+SUM(total_price) * 100 / (SELECT SUM(total_price) 
+FROM pizza_sales) AS pct 
+FROM pizza_sales 
+GROUP BY pizza_size 
+ORDER BY pct DESC;
+```
+**Insight:** Identifies most popular pizza sizes — Large, Medium, Small, XL — by revenue contribution.
+
+---
+
+#### ✅ Query 6 — Top & Bottom 5 Sellers
+
+```sql
+-- Top 5 by Revenue
+SELECT pizza_name, SUM(total_price) AS total_revenue 
+FROM pizza_sales 
+GROUP BY pizza_name 
+ORDER BY total_revenue DESC LIMIT 5;
+
+-- Bottom 5 by Revenue
+SELECT pizza_name, SUM(total_price) AS total_revenue 
+FROM pizza_sales 
+GROUP BY pizza_name 
+ORDER BY total_revenue ASC LIMIT 5;
+
+-- Top 5 by Quantity
+SELECT pizza_name, SUM(quantity) AS total_quantity 
+FROM pizza_sales 
+GROUP BY pizza_name 
+ORDER BY total_quantity DESC LIMIT 5;
+
+-- Bottom 5 by Quantity
+SELECT pizza_name, SUM(quantity) AS total_quantity 
+FROM pizza_sales 
+GROUP BY pizza_name 
+ORDER BY total_quantity ASC LIMIT 5;
+
+-- Top 5 by Total Orders
+SELECT pizza_name, COUNT(DISTINCT order_id) AS total_order 
+FROM pizza_sales 
+GROUP BY pizza_name 
+ORDER BY total_order DESC LIMIT 5;
+
+-- Bottom 5 by Total Orders
+SELECT pizza_name, COUNT(DISTINCT order_id) AS total_order 
+FROM pizza_sales 
+GROUP BY pizza_name 
+ORDER BY total_order ASC LIMIT 5;
+```
+**Insight:** Identifies star performers and underperforming pizzas across 3 dimensions — revenue, quantity, and orders.
+
+---
+
+### 💡 SQL Concepts Used
+
+| Concept | Where Used |
+|---|---|
+| **SUM, COUNT** | Revenue and order aggregations |
+| **DISTINCT** | Unique order counting |
+| **CAST** | Decimal precision for averages |
+| **DAYNAME** | Extract day name from date |
+| **MONTHNAME** | Extract month name from date |
+| **STR_TO_DATE** | Convert string to date format |
+| **Subqueries** | Percentage calculations |
+| **GROUP BY** | Category and size aggregations |
+| **ORDER BY + LIMIT** | Top and bottom 5 rankings |
+| **MONTH()** | Filter by specific month |
+
+---
+
+### 🔑 Key Business Insights
+
+| Finding | Detail |
+|---|---|
+| **Peak Day** | Friday and Saturday highest orders |
+| **Peak Month** | January and July highest orders |
+| **Top Category** | Classic category leads revenue |
+| **Top Size** | Large pizzas most popular |
+| **Best Seller** | Thai Chicken Pizza highest revenue |
+| **Worst Seller** | Brie Carre Pizza lowest revenue |
+
+---
+
+📂 [View Project File](https://github.com/ananyagoel7/SQL/blob/main/pizza_sales.sql)
+
+---
+
+## 💊 Project 2 — FDA Drug Approval Analysis
+
+### Overview
+A comprehensive SQL analysis of the **FDA Drug Approval dataset** 
+uncovering approval trends, market segmentation, product insights, 
+and therapeutic class patterns across multiple decades of drug 
+approval data.
+
+---
+
+### 📂 Dataset Tables Used
 
 | Table | Description |
 |---|---|
@@ -40,15 +245,7 @@ This project analyzes the **FDA Drug Approval dataset** using advanced SQL queri
 
 ---
 
-## 📊 Project Tasks & SQL Queries
-
----
-
-### 📌 Task 1 — Identifying Approval Trends
-
-**Objective:** Analyze yearly drug approval trends to identify patterns over time.
-
----
+### 📊 Task 1 — Identifying Approval Trends
 
 #### ✅ Query 1 — Yearly Drug Approvals
 ```sql
@@ -60,7 +257,7 @@ WHERE rd.ActionType = 'AP'
 GROUP BY approval_year 
 ORDER BY approval_year;
 ```
-**Insight:** Tracks total number of unique drugs approved each year across the entire dataset.
+**Insight:** Tracks total unique drugs approved each year across the entire dataset.
 
 ---
 
@@ -102,7 +299,7 @@ AND ra.ActionDate IS NOT NULL
 GROUP BY YEAR(ra.ActionDate), a.SponsorApplicant 
 ORDER BY approval_year, num_approvals DESC;
 ```
-**Insight:** Reveals which pharmaceutical companies received the most approvals each year.
+**Insight:** Reveals which pharmaceutical companies received most approvals each year.
 
 ---
 
@@ -121,25 +318,17 @@ ORDER BY YEAR(rd.ActionDate), num_approvals DESC;
 
 ---
 
-### 📌 Task 2 — Segmentation Analysis Based on Drug Marketing Status
-
-**Objective:** Understand distribution of drugs across different marketing statuses.
-
----
+### 📊 Task 2 — Segmentation Analysis
 
 #### ✅ Query 1 — Product Count by Marketing Status
 ```sql
-SELECT ProductMktStatus, COUNT(*) AS num_products
-FROM Product 
-GROUP BY ProductMktStatus;
-
--- With Percentage
 SELECT ProductMktStatus, COUNT(*) AS num_products,
-ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM product), 2) AS percentage 
+ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM product), 2) 
+AS percentage 
 FROM product 
 GROUP BY ProductMktStatus;
 ```
-**Insight:** Shows what percentage of drugs are actively marketed vs discontinued vs withdrawn.
+**Insight:** Shows percentage of drugs actively marketed vs discontinued vs withdrawn.
 
 ---
 
@@ -159,27 +348,9 @@ ORDER BY ApprovalYear, P.ProductMktStatus;
 
 ---
 
-#### ✅ Query 3 — Top 5 Application Years by Marketing Status
-```sql
-SELECT ProductMktStatus, 
-YEAR(ActionDate) AS application_year, 
-COUNT(*) AS num_applications
-FROM regactiondate
-LEFT JOIN product ON regactiondate.ApplNo = product.ApplNo
-GROUP BY 1, 2 
-ORDER BY 3 DESC LIMIT 5;
-```
-**Insight:** Identifies which years had highest application volumes by marketing status.
+### 📊 Task 3 — Analyzing Products
 
----
-
-### 📌 Task 3 — Analyzing Products
-
-**Objective:** Analyze drug products by dosage form to identify most common and successful forms.
-
----
-
-#### ✅ Query 1 & 2 — Products by Dosage Form
+#### ✅ Query 1 — Products by Dosage Form
 ```sql
 SELECT Form AS Dosage_Form, 
 COUNT(*) AS Num_Products 
@@ -187,11 +358,11 @@ FROM Product
 GROUP BY Form 
 ORDER BY Num_Products DESC;
 ```
-**Insight:** Identifies the most common drug delivery forms — tablets, capsules, injections etc.
+**Insight:** Identifies most common drug delivery forms — tablets, capsules, injections.
 
 ---
 
-#### ✅ Query 3 — Successful Dosage Forms by Year
+#### ✅ Query 2 — Successful Dosage Forms by Year
 ```sql
 SELECT YEAR(ActionDate) AS approval_year, 
 p.Form,
@@ -206,11 +377,7 @@ ORDER BY approval_year, num_successful_forms DESC;
 
 ---
 
-### 📌 Task 4 — Exploring Therapeutic Classes and Approval Trends
-
-**Objective:** Analyze drug approvals by therapeutic equivalence codes to identify dominant therapeutic classes.
-
----
+### 📊 Task 4 — Therapeutic Classes
 
 #### ✅ Query 1 — Total Approvals by Therapeutic Class
 ```sql
@@ -223,7 +390,7 @@ AND P.TECode IS NOT NULL
 GROUP BY P.TECode 
 ORDER BY TotalApprovals DESC;
 ```
-**Insight:** Identifies which therapeutic classes have received the most FDA approvals overall.
+**Insight:** Identifies which therapeutic classes received most FDA approvals overall.
 
 ---
 
@@ -247,50 +414,48 @@ FROM (
 ) AS Ranked 
 WHERE RN = 1;
 ```
-**Insight:** Uses **window functions** to identify the leading therapeutic class for every single year — showing how dominant drug categories shifted over time.
+**Insight:** Uses window functions to identify leading therapeutic class for every year.
 
 ---
 
-## 📈 Power BI Dashboard
-
-Built an interactive Power BI dashboard on top of this SQL analysis tracking:
-
-- ✅ Year-over-year drug approval trends
-- ✅ Marketing status distribution
-- ✅ Top dosage forms by approval count
-- ✅ Therapeutic class dominance over time
-- ✅ Interactive filters for year, sponsor, and drug category
-
----
-
-## 🔑 Key Insights From Analysis
-
-| Finding | Detail |
-|---|---|
-| **Peak Approval Years** | Identified top 3 years with highest FDA approvals |
-| **Dominant Sponsors** | Revealed top pharmaceutical companies by approval count |
-| **Most Common Form** | Tablets and capsules dominate drug delivery forms |
-| **Post 2010 Trends** | Shift in marketing status distribution of modern drugs |
-| **Top Therapeutic Class** | Identified leading TE code by approvals each year |
-| **Historical Patterns** | Analyzed early FDA approvals from 1939-1960 |
-
----
-
-## 💡 SQL Concepts Used
+### 💡 SQL Concepts Used — FDA Project
 
 | Concept | Where Used |
 |---|---|
-| **INNER JOIN** | Combining application, product, and action date tables |
-| **LEFT JOIN** | Including all products regardless of action date |
-| **GROUP BY** | Aggregating by year, sponsor, dosage form |
+| **INNER JOIN** | Combining multiple tables |
+| **LEFT JOIN** | Including all products |
+| **GROUP BY** | Aggregating by year, sponsor, form |
 | **COUNT DISTINCT** | Unique drug application counts |
 | **WHERE filters** | Action type, date ranges, market status |
-| **ORDER BY** | Sorting by approvals ascending and descending |
-| **LIMIT** | Top 3 and bottom 3 results |
 | **ROUND** | Percentage calculations |
-| **ROW_NUMBER()** | Window function for ranking by year |
-| **PARTITION BY** | Yearly partitioning for therapeutic class ranking |
-| **Subqueries** | Percentage calculation and ranked results |
+| **ROW_NUMBER()** | Window function for ranking |
+| **PARTITION BY** | Yearly partitioning |
+| **Subqueries** | Percentage and ranked results |
+| **BETWEEN** | Historical date range filtering |
+
+📂 [View Project File](https://github.com/ananyagoel7/SQL/blob/main/FDA%20sql.sql)
+
+---
+
+## 💡 What These Projects Demonstrate
+
+| Skill | How Demonstrated |
+|---|---|
+| **SQL Proficiency** | JOINs, subqueries, window functions, date functions |
+| **Data Analysis** | Patterns across sales and regulatory datasets |
+| **Business Thinking** | Insights tied to real business decisions |
+| **Problem Solving** | Multi-table analysis and complex aggregations |
+| **Data Storytelling** | Numbers translated into clear insights |
+| **Domain Knowledge** | Food & Beverage, Pharmaceutical analytics |
+
+---
+
+## 📊 Projects Summary
+
+| Project | Domain | Key Analysis | Tools |
+|---|---|---|---|
+| **Pizza Sales** | Food & Beverage | Revenue, Orders, Top/Bottom Sellers | MySQL, Power BI |
+| **FDA Drug Approval** | Pharmaceutical | Approval Trends, Therapeutic Classes | MySQL, Power BI |
 
 ---
 
@@ -299,8 +464,9 @@ Built an interactive Power BI dashboard on top of this SQL analysis tracking:
 - 📧 Email: ananyagoel.brac@gmail.com
 - 💼 LinkedIn: [linkedin.com/in/ananya-goel05](https://linkedin.com/in/ananya-goel05)
 - 📊 Power BI Projects: [github.com/ananyagoel7/Power-Bi](https://github.com/ananyagoel7/Power-Bi)
+- 📊 Excel Projects: [github.com/ananyagoel7/Excel](https://github.com/ananyagoel7/Excel)
 - 💻 GitHub: [github.com/ananyagoel7](https://github.com/ananyagoel7)
 
 ---
 
-⭐ **If you found this project useful — please star this repository!**
+⭐ **If you found these projects useful — please star this repository!**
